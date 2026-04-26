@@ -51,22 +51,20 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* 导航栏包装容器 */
 .nav-wrapper {
   position: fixed;
-  top: 10px; /* 从顶部下移10px */
+  top: 10px;
   left: 0;
   right: 0;
   z-index: 1000;
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  padding: 0 20px; /* 添加左右内边距 */
-  pointer-events: none; /* 添加这一行，让导航栏不阻挡点击事件 */
+  padding: 0 20px;
+  pointer-events: none; /* 导航栏背景不阻挡点击事件 */
 }
 
-/* 顶部导航栏样式 */
 .header {
-  pointer-events: auto; /* 让header内的元素可以点击 */
+  pointer-events: auto; /* header 内元素正常可点击 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -76,16 +74,15 @@ const handleLogout = () => {
   border-bottom: 1px solid #E7E7E7;
   margin-bottom: 0;
   background: rgba(255, 255, 255, 0.8);
-  border-radius: 15px; /* 添加圆角 */
+  border-radius: 15px;
   z-index: 100;
 }
 
-/* Logo样式 */
 .logo {
   display: flex;
   align-items: center;
   margin-top: -10px;
-  margin-left: 40px;  /* 增加左边距使Logo右移 */
+  margin-left: 40px;
 }
 
 .small-logo {
@@ -94,16 +91,14 @@ const handleLogout = () => {
   object-fit: contain;
 }
 
-/* 导航栏右侧样式 */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 20px;
   margin-top: -10px;
-  margin-right: 40px;  /* 增加右边距使内容左移 */
+  margin-right: 40px;
 }
 
-/* 语言选择器和用户菜单样式 */
 .lang-select, .user-menu {
   position: relative;
   cursor: pointer;
@@ -120,7 +115,6 @@ const handleLogout = () => {
   text-align: center;
 }
 
-/* 下拉菜单样式 */
 .menu-options {
   position: absolute;
   top: 100%;
@@ -164,4 +158,4 @@ const handleLogout = () => {
 .menu-option {
   color: #dc3545;
 }
-</style> 
+</style>

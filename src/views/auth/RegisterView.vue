@@ -1,72 +1,50 @@
-<!--
- * @file RegisterView.vue
- * @description 用户注册页面组件
- * @features
- * - 用户注册表单
- * - 密码确认验证
- * - 多语言支持
- * - 导航栏集成
- * - 错误处理和加载状态
- * - 路由导航
- -->
-
 <template>
   <div class="register-container">
-    <!-- 顶部导航栏部分 -->
     <AuthNavBar />
 
-    <!-- 背景装饰 -->
     <div class="background-ellipse"></div>
     <div class="background-ellipse-second"></div>
     <div class="background-ellipse-right"></div>
     <div class="background-ellipse-second-right"></div>
 
-    <!-- 注册表单部分 -->
     <div class="register-content">
       <div class="register-box fade-in-up">
         <h2 class="register-title">{{ $t('auth.register.title') }}</h2>
-        <!-- 注册表单 -->
         <form class="register-form" @submit.prevent="handleRegister">
-          <!-- 用户名输入框 -->
           <div class="form-group">
             <label for="username">{{ $t('auth.register.username') }}</label>
-            <input 
-              type="text" 
-              id="username" 
-              v-model="username" 
+            <input
+              type="text"
+              id="username"
+              v-model="username"
               required
               :placeholder="$t('auth.register.usernamePlaceholder')"
             >
           </div>
-          <!-- 密码输入框 -->
           <div class="form-group">
             <label for="password">{{ $t('auth.register.password') }}</label>
-            <input 
-              type="password" 
-              id="password" 
-              v-model="password" 
+            <input
+              type="password"
+              id="password"
+              v-model="password"
               required
               :placeholder="$t('auth.register.passwordPlaceholder')"
             >
           </div>
-          <!-- 确认密码输入框 -->
           <div class="form-group">
             <label for="confirmPassword">{{ $t('auth.register.confirmPassword') }}</label>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              v-model="confirmPassword" 
+            <input
+              type="password"
+              id="confirmPassword"
+              v-model="confirmPassword"
               required
               :placeholder="$t('auth.register.confirmPasswordPlaceholder')"
             >
           </div>
-          <!-- 错误信息显示 -->
           <div class="error-message" v-if="error">{{ error }}</div>
-          <!-- 注册按钮 -->
           <button type="submit" class="register-button" :disabled="loading">
             {{ loading ? $t('auth.register.creatingAccount') : $t('auth.register.createAccount') }}
           </button>
-          <!-- 登录链接 -->
           <div class="form-footer">
             <span>{{ $t('auth.register.hasAccount') }}</span>
             <a @click="router.push('/login')" class="login-link">{{ $t('auth.register.signIn') }}</a>
@@ -78,7 +56,6 @@
 </template>
 
 <script setup>
-// 导入所需的依赖
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -86,17 +63,15 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { useUserStore } from '../../stores/user'
 import AuthNavBar from '../../components/AuthNavBar.vue'
 
-// 初始化路由、国际化和状态管理
 const router = useRouter()
 const { t } = useI18n()
 const userStore = useUserStore()
 
-// 定义响应式状态
-const username = ref('') // 用户名输入
-const password = ref('') // 密码输入
-const confirmPassword = ref('') // 确认密码输入
-const error = ref('') // 错误信息
-const loading = ref(false) // 加载状态
+const username = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const error = ref('')
+const loading = ref(false)
 
 watch([password, confirmPassword], ([newPassword, newConfirmPassword]) => {
   if (newPassword && newConfirmPassword && newPassword !== newConfirmPassword) {
@@ -106,33 +81,27 @@ watch([password, confirmPassword], ([newPassword, newConfirmPassword]) => {
   }
 })
 
-// 注册表单提交处理函数
 const handleRegister = async () => {
   try {
-    // 验证密码是否匹配
-  if (password.value !== confirmPassword.value) {
-    error.value = t('auth.register.passwordsNotMatch')
-    return
-  }
+    if (password.value !== confirmPassword.value) {
+      error.value = t('auth.register.passwordsNotMatch')
+      return
+    }
 
     loading.value = true
     error.value = ''
-    
-    // 调用后端注册 API
+
     const user = await invoke('register', {
       username: username.value,
       password: password.value
     })
-    
+
     if (!user) {
       error.value = t('auth.register.registrationFailed')
       return
     }
 
-    // 保存用户信息到 store
     userStore.setUser(user)
-    
-    // 注册成功，跳转到首页
     router.push('/home')
   } catch (err) {
     console.error('Registration error:', err)
@@ -144,7 +113,6 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-/* 容器样式 */
 .register-container {
   position: relative;
   min-height: 100vh;
@@ -154,7 +122,6 @@ const handleRegister = async () => {
   overflow: hidden;
 }
 
-/* 背景装饰椭圆 */
 .background-ellipse {
   position: absolute;
   width: 600px;
@@ -211,7 +178,6 @@ const handleRegister = async () => {
   z-index: 1;
 }
 
-/* 注册内容区域样式 */
 .register-content {
   position: relative;
   z-index: 2;
@@ -224,7 +190,6 @@ const handleRegister = async () => {
   padding-bottom: 15vh;
 }
 
-/* 注册框样式 */
 .register-box {
   position: relative;
   z-index: 2;
@@ -237,7 +202,6 @@ const handleRegister = async () => {
   margin-top: clamp(-50px, -8vh, -30px);
 }
 
-/* 标题样式 */
 .register-title {
   text-align: center;
   color: #214D89;
@@ -258,7 +222,6 @@ const handleRegister = async () => {
   background-color: #214D89;
 }
 
-/* 表单样式 */
 .register-form {
   display: flex;
   flex-direction: column;
@@ -271,7 +234,6 @@ const handleRegister = async () => {
   gap: clamp(3px, 0.9vw, 5px);
 }
 
-/* 输入框样式 */
 .form-group label {
   font-size: clamp(18px, 2.5vw, 22px);
   color: #214D89;
@@ -293,7 +255,6 @@ const handleRegister = async () => {
   border-color: #4294EC;
 }
 
-/* 注册按钮样式 */
 .register-button {
   background-color: #4294EC;
   color: white;
@@ -319,14 +280,12 @@ const handleRegister = async () => {
   cursor: not-allowed;
 }
 
-/* 错误信息样式 */
 .error-message {
   color: #dc3545;
   font-size: 14px;
   text-align: center;
 }
 
-/* 表单底部样式 */
 .form-footer {
   text-align: center;
   font-size: clamp(14px, 2.2vw, 20px);
@@ -335,7 +294,6 @@ const handleRegister = async () => {
   letter-spacing: 0.5px;
 }
 
-/* 登录链接样式 */
 .login-link {
   color: #214D89;
   margin-left: 8px;
@@ -349,21 +307,20 @@ const handleRegister = async () => {
   opacity: 0.9;
 }
 
-/* 响应式布局调整 */
 @media (min-width: 1200px) {
   .register-box {
     max-width: 500px;
     padding: 50px;
   }
-  
+
   .register-title {
     font-size: 46px;
   }
-  
+
   .form-group label {
     font-size: 24px;
   }
-  
+
   .register-button {
     font-size: 24px;
   }
@@ -379,12 +336,12 @@ const handleRegister = async () => {
   .register-content {
     padding: clamp(10px, 2vw, 15px);
   }
-  
+
   .register-box {
     max-width: 85vw;
     padding: clamp(20px, 3vw, 30px);
   }
-  
+
   .register-title::after {
     left: 10%;
     right: 10%;
@@ -398,46 +355,46 @@ const handleRegister = async () => {
     padding-top: clamp(10px, 3vh, 20px);
     padding-bottom: 10vh;
   }
-  
+
   .register-box {
     max-width: 92vw;
     padding: 14px;
     margin-top: 0;
   }
-  
+
   .register-title {
     font-size: clamp(22px, 5vw, 26px);
     margin-bottom: 14px;
     padding-bottom: 5px;
   }
-  
+
   .register-title::after {
     left: 8%;
     right: 8%;
   }
-  
+
   .register-form {
     gap: 10px;
   }
-  
+
   .form-group {
     gap: 3px;
   }
-  
+
   .form-group input {
     padding: 7px;
   }
-  
+
   .form-group label {
     font-size: 16px;
   }
-  
+
   .register-button {
     padding: 9px;
     font-size: 18px;
     margin-top: 4px;
   }
-  
+
   .form-footer {
     font-size: 14px;
     margin-top: 5px;
@@ -449,20 +406,20 @@ const handleRegister = async () => {
     max-width: 96vw;
     padding: 15px;
   }
-  
+
   .register-title {
     font-size: 22px;
     margin-bottom: 15px;
   }
-  
+
   .form-group label {
     font-size: 16px;
   }
-  
+
   .register-button {
     font-size: 16px;
   }
-  
+
   .form-footer {
     font-size: 14px;
   }
@@ -473,42 +430,39 @@ const handleRegister = async () => {
     padding-top: 10px;
     padding-bottom: 4vh;
   }
-  
+
   .register-box {
     margin-top: 0;
     padding: 12px;
   }
-  
+
   .register-title {
     margin-bottom: 12px;
     font-size: 24px;
   }
-  
+
   .register-form {
     gap: 8px;
   }
-  
+
   .form-group {
     gap: 3px;
   }
-  
+
   .form-group input {
     padding: 7px;
   }
-  
+
   .register-button {
     padding: 7px;
     margin-top: 3px;
   }
-  
+
   .form-footer {
     margin-top: 5px;
   }
 }
 
-/* ==================== 页面进场动画 ==================== */
-
-/* 定义从下方淡入的动画 */
 @keyframes fadeIn-Up {
   from {
     opacity: 0;
@@ -520,14 +474,11 @@ const handleRegister = async () => {
   }
 }
 
-/* 将动画应用到注册框上 */
 .fade-in-up {
   animation: fadeIn-Up 0.8s ease-out forwards;
-  /* 确保动画完成后保持最终状态 */
   animation-fill-mode: forwards;
 }
 
-/* 为背景装饰也添加延迟动画 */
 .background-ellipse {
   animation: fadeIn-Up 1s ease-out 0.2s forwards;
   opacity: 0;
@@ -551,4 +502,4 @@ const handleRegister = async () => {
   opacity: 0;
   animation-fill-mode: forwards;
 }
-</style> 
+</style>

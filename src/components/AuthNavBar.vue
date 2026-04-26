@@ -1,21 +1,16 @@
-<!-- AuthNavBar.vue - 认证页面通用导航栏组件 -->
 <template>
   <div class="nav-wrapper">
     <div class="header">
-      <!-- 左侧Logo -->
       <div class="logo">
         <img src="/images/logo.png" alt="AudioShield" class="small-logo">
       </div>
-      <!-- 右侧功能区 -->
       <div class="nav-right">
-        <!-- 用户菜单 - 仅在用户已登录时显示 -->
         <div class="user-menu" v-if="userStore.isAuthenticated" @click="isUserMenuOpen = !isUserMenuOpen">
           <span class="username">{{ userStore.user.username }}</span>
           <div class="menu-options" v-if="isUserMenuOpen">
             <div class="menu-option" @click="handleLogout">{{ $t('nav.logout') }}</div>
           </div>
         </div>
-        <!-- 语言切换器 -->
         <div class="lang-select" @click="isLangOpen = !isLangOpen">
           <span class="lang-text">{{ locale === 'zh' ? '语言' : 'Language' }}</span>
           <div class="options" v-if="isLangOpen">
@@ -56,13 +51,11 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* 导航栏包装容器 */
 .nav-wrapper {
   padding-top: 20px;
   width: 100%;
 }
 
-/* 顶部导航栏样式 */
 .header {
   display: flex;
   justify-content: space-between;
@@ -76,12 +69,11 @@ const handleLogout = () => {
   z-index: 100;
 }
 
-/* Logo样式 */
 .logo {
   display: flex;
   align-items: center;
   margin-top: -10px;
-  margin-left: 40px;  /* 增加左边距使Logo右移 */
+  margin-left: 40px;
 }
 
 .small-logo {
@@ -90,16 +82,14 @@ const handleLogout = () => {
   object-fit: contain;
 }
 
-/* 导航栏右侧样式 */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 20px;
   margin-top: -10px;
-  margin-right: 40px;  /* 增加右边距使内容左移 */
+  margin-right: 40px;
 }
 
-/* 语言选择器和用户菜单样式 */
 .lang-select, .user-menu {
   position: relative;
   cursor: pointer;
@@ -116,7 +106,6 @@ const handleLogout = () => {
   text-align: center;
 }
 
-/* 下拉菜单样式 */
 .menu-options {
   position: absolute;
   top: 100%;
@@ -160,4 +149,4 @@ const handleLogout = () => {
 .menu-option {
   color: #dc3545;
 }
-</style> 
+</style>

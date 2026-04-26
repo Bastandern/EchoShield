@@ -1,60 +1,40 @@
-<!--
- * @file LoginView.vue
- * @description 用户登录页面组件
- * @features
- * - 用户登录表单
- * - 多语言支持
- * - 导航栏集成
- * - 错误处理和加载状态
- * - 路由导航
- -->
-
 <template>
   <div class="login-container">
-    <!-- 顶部导航栏部分 -->
     <AuthNavBar />
 
-    <!-- 背景装饰 -->
     <div class="background-ellipse"></div>
     <div class="background-ellipse-second"></div>
     <div class="background-ellipse-right"></div>
     <div class="background-ellipse-second-right"></div>
 
-    <!-- 登录表单部分 -->
     <div class="login-content">
       <div class="login-box fade-in-up">
         <h2 class="login-title">{{ $t('auth.login.title') }}</h2>
-        <!-- 登录表单 -->
         <form class="login-form" @submit.prevent="handleLogin">
-          <!-- 用户名输入框 -->
           <div class="form-group">
             <label for="username">{{ $t('auth.login.username') }}</label>
-            <input 
-              type="text" 
-              id="username" 
-              v-model="username" 
+            <input
+              type="text"
+              id="username"
+              v-model="username"
               required
               :placeholder="$t('auth.login.usernamePlaceholder')"
             >
           </div>
-          <!-- 密码输入框 -->
           <div class="form-group">
             <label for="password">{{ $t('auth.login.password') }}</label>
-            <input 
-              type="password" 
-              id="password" 
-              v-model="password" 
+            <input
+              type="password"
+              id="password"
+              v-model="password"
               required
               :placeholder="$t('auth.login.passwordPlaceholder')"
             >
           </div>
-          <!-- 错误信息显示 -->
           <div class="error-message" v-if="error">{{ error }}</div>
-          <!-- 登录按钮 -->
           <button type="submit" class="login-button" :disabled="loading">
             {{ loading ? $t('auth.login.signingIn') : $t('auth.login.signIn') }}
           </button>
-          <!-- 注册链接 -->
           <div class="form-footer">
             <span>{{ $t('auth.login.noAccount') }}</span>
             <a @click="router.push('/register')" class="register-link">{{ $t('auth.login.signUp') }}</a>
@@ -66,7 +46,6 @@
 </template>
 
 <script setup>
-// 导入所需的依赖
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -74,24 +53,20 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { useUserStore } from '../../stores/user'
 import AuthNavBar from '../../components/AuthNavBar.vue'
 
-// 初始化路由、国际化和状态管理
 const router = useRouter()
 const { t } = useI18n()
 const userStore = useUserStore()
 
-// 定义响应式状态
-const username = ref('') // 用户名输入
-const password = ref('') // 密码输入
-const error = ref('') // 错误信息
-const loading = ref(false) // 加载状态
+const username = ref('')
+const password = ref('')
+const error = ref('')
+const loading = ref(false)
 
-// 登录表单提交处理函数
 const handleLogin = async () => {
   try {
     loading.value = true
     error.value = ''
-    
-    // 调用后端登录 API
+
     const user = await invoke('login', {
       username: username.value,
       password: password.value
@@ -102,10 +77,7 @@ const handleLogin = async () => {
       return
     }
 
-    // 保存用户信息到 store
     userStore.setUser(user)
-    
-    // 登录成功，跳转到首页
     router.push('/home')
   } catch (err) {
     console.error('Login error:', err)
@@ -117,7 +89,6 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* 容器样式 */
 .login-container {
   position: relative;
   min-height: 100vh;
@@ -127,7 +98,6 @@ const handleLogin = async () => {
   overflow: hidden;
 }
 
-/* 背景装饰椭圆 */
 .background-ellipse {
   position: absolute;
   width: 600px;
@@ -184,7 +154,6 @@ const handleLogin = async () => {
   z-index: 1;
 }
 
-/* 登录内容区域样式 */
 .login-content {
   position: relative;
   z-index: 2;
@@ -197,7 +166,6 @@ const handleLogin = async () => {
   padding-bottom: 15vh;
 }
 
-/* 登录框样式 */
 .login-box {
   position: relative;
   z-index: 2;
@@ -210,12 +178,10 @@ const handleLogin = async () => {
   margin-top: clamp(-50px, -8vh, -30px);
 }
 
-/* Logo样式 */
 .login-logo {
   display: none;
 }
 
-/* 标题样式 */
 .login-title {
   text-align: center;
   color: #214D89;
@@ -236,7 +202,6 @@ const handleLogin = async () => {
   background-color: #214D89;
 }
 
-/* 表单样式 */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -249,7 +214,6 @@ const handleLogin = async () => {
   gap: clamp(6px, 1.2vw, 10px);
 }
 
-/* 输入框样式 */
 .form-group label {
   font-size: clamp(18px, 3vw, 24px);
   color: #214D89;
@@ -271,7 +235,6 @@ const handleLogin = async () => {
   border-color: #4294EC;
 }
 
-/* 登录按钮样式 */
 .login-button {
   background-color: #4294EC;
   color: white;
@@ -297,14 +260,12 @@ const handleLogin = async () => {
   cursor: not-allowed;
 }
 
-/* 错误信息样式 */
 .error-message {
   color: #dc3545;
   font-size: 14px;
   text-align: center;
 }
 
-/* 表单底部样式 */
 .form-footer {
   text-align: center;
   font-size: clamp(16px, 2.5vw, 22px);
@@ -313,7 +274,6 @@ const handleLogin = async () => {
   letter-spacing: 0.5px;
 }
 
-/* 注册链接样式 */
 .register-link {
   color: #214D89;
   margin-left: 8px;
@@ -327,21 +287,20 @@ const handleLogin = async () => {
   opacity: 0.9;
 }
 
-/* 响应式布局调整 */
 @media (min-width: 1200px) {
   .login-box {
     max-width: 500px;
     padding: 50px;
   }
-  
+
   .login-title {
     font-size: 46px;
   }
-  
+
   .form-group label {
     font-size: 24px;
   }
-  
+
   .login-button {
     font-size: 24px;
   }
@@ -357,11 +316,11 @@ const handleLogin = async () => {
   .login-content {
     padding: clamp(10px, 2vw, 15px);
   }
-  
+
   .login-box {
     max-width: 85vw;
   }
-  
+
   .login-title::after {
     left: 10%;
     right: 10%;
@@ -375,38 +334,38 @@ const handleLogin = async () => {
     padding-top: clamp(10px, 3vh, 20px);
     padding-bottom: 10vh;
   }
-  
+
   .login-box {
     max-width: 92vw;
     padding: 20px;
     margin-top: 0;
   }
-  
+
   .login-title {
     font-size: clamp(26px, 6vw, 32px);
     margin-bottom: 16px;
     padding-bottom: 6px;
   }
-  
+
   .login-title::after {
     left: 8%;
     right: 8%;
   }
-  
+
   .form-group input {
     font-size: 16px;
     padding: 12px;
   }
-  
+
   .form-group label {
     font-size: clamp(16px, 5vw, 20px);
   }
-  
+
   .login-button {
     font-size: clamp(18px, 5vw, 20px);
     padding: 12px;
   }
-  
+
   .form-footer {
     font-size: clamp(14px, 4vw, 18px);
   }
@@ -417,20 +376,20 @@ const handleLogin = async () => {
     max-width: 96vw;
     padding: 15px;
   }
-  
+
   .login-title {
     font-size: 24px;
     margin-bottom: 15px;
   }
-  
+
   .form-group label {
     font-size: 16px;
   }
-  
+
   .login-button {
     font-size: 16px;
   }
-  
+
   .form-footer {
     font-size: 14px;
   }
@@ -441,29 +400,26 @@ const handleLogin = async () => {
     padding-top: 10px;
     padding-bottom: 5vh;
   }
-  
+
   .login-box {
     margin-top: 0;
     padding-top: 15px;
     padding-bottom: 15px;
   }
-  
+
   .login-title {
     margin-bottom: 15px;
   }
-  
+
   .login-form {
     gap: 12px;
   }
-  
+
   .form-group {
     gap: 6px;
   }
 }
 
-/* ==================== 页面进场动画 ==================== */
-
-/* 定义从下方淡入的动画 */
 @keyframes fadeIn-Up {
   from {
     opacity: 0;
@@ -475,14 +431,11 @@ const handleLogin = async () => {
   }
 }
 
-/* 将动画应用到登录框上 */
 .fade-in-up {
   animation: fadeIn-Up 0.8s ease-out forwards;
-  /* 确保动画完成后保持最终状态 */
   animation-fill-mode: forwards;
 }
 
-/* 为背景装饰也添加延迟动画 */
 .background-ellipse {
   animation: fadeIn-Up 1s ease-out 0.2s forwards;
   opacity: 0;
@@ -506,4 +459,4 @@ const handleLogin = async () => {
   opacity: 0;
   animation-fill-mode: forwards;
 }
-</style> 
+</style>

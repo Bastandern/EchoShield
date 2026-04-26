@@ -29,9 +29,7 @@ struct Payload<T> {
     new: Vec<T>,
 }
 
-// 扰动衰减系数，用于改善音频质量 (0.0-1.0)
-// 值越小，扰动越小，音频质量越好，但保护效果可能减弱
-// 值越大，扰动越大，保护效果越好，但音频质量可能下降
+// 扰动衰减系数 (0.0-1.0)：值越小保护效果越弱但音质越好，值越大保护效果越强但音质越差
 const DISTURBANCE_ALPHA: f32 = 1.0;
 
 lazy_static! {
@@ -75,21 +73,19 @@ async fn login(
 async fn audio_process(
     state: State<'_, AppState>,
     user_id: String,
-    add_values: Vec<f32>, 
+    add_values: Vec<f32>,
     window: Window
 ) -> Result<(), String> {
     HAS_RUN_AUDIO.store(true, Ordering::SeqCst);
-    // 默认暂停状态，用户需要手动点击播放，确保开始时是静音的
+    // muted by default; user must explicitly call start_audio_playback
     SHOULD_PLAY_AUDIO_OUTPUT.store(false, Ordering::SeqCst);
     println!("Audio processing started - output is muted by default");
-    
-    // 获取当前时间作为文件名
-        let now = SystemTime::now();
-        let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
-        let in_ms = since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_millis() as u64;
+
+    let now = SystemTime::now();
+    let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
+    let in_ms = since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_millis() as u64;
     let filename = in_ms.to_string();
 
-    // 保存音频文件记录到数据库
     state
         .db
         .lock()
@@ -100,14 +96,11 @@ async fn audio_process(
     thread::spawn(move || {
         let base_dirs = BaseDirs::new().unwrap();
         let path = base_dirs.data_dir().to_str().unwrap();
-        // 创建文件
         let input_filepath = format!("{}/top.echoshield/waves/{}_ori.wav", path, filename);
         let output_filepath = format!("{}/top.echoshield/waves/{}_new.wav", path, filename);
 
-        // 获取默认的 host
         let host = cpal::default_host();
 
-        // 获得默认输入输出设备
         let input_device = host
             .default_input_device()
             .expect("Failed to get default input device");
@@ -118,7 +111,6 @@ async fn audio_process(
 
         let output_device_list = host.output_devices().unwrap();
 
-        // 查找虚拟声卡设备
         let mut virtual_device_found = false;
         for device in output_device_list {
             let device_name = device.name().unwrap();
@@ -140,12 +132,9 @@ async fn audio_process(
             println!("Falling back to default output device");
         }
 
-        // 确认选择的输出设备
         println!("Using output device: {}", output_device.name().unwrap());
-
         println!("Start Audio Process");
 
-        // 获取输入输出配置
         let mut input_supported_configs_range = input_device
             .supported_input_configs()
             .expect("error while querying configs");
@@ -164,11 +153,9 @@ async fn audio_process(
             .expect("no supported config?!")
             .with_max_sample_rate();
 
-        // 音频数据缓冲区
         let buffer = Arc::new(Mutex::new(Vec::new()));
         let add_index = Arc::new(Mutex::new(0));
 
-        // 输入部分
         let input_err_fn = |err| eprintln!("an error occurred on the input audio stream: {}", err);
         let input_sample_format = input_supported_configs.sample_format();
         let input_config: StreamConfig = input_supported_configs.into();
@@ -178,7 +165,6 @@ async fn audio_process(
         println!("声道数：{}", input_config.channels);
         println!("采样率：{}", input_config.sample_rate.0);
 
-        // 创建 WAV 文件写入器
         let input_spec = WavSpec {
             channels: input_config.channels,
             sample_rate: input_config.sample_rate.0 / 3,
@@ -189,20 +175,17 @@ async fn audio_process(
             WavWriter::create(input_filepath, input_spec).expect("Failed to create WAV file"),
         ));
 
-        // 输出部分
         let output_err_fn =
             |err| eprintln!("an error occurred on the output audio stream: {}", err);
         let output_sample_format = output_supported_configs.sample_format();
         let output_config: StreamConfig = output_supported_configs.into();
         let output_buffer = Arc::clone(&buffer);
 
-        // 打印输出设备配置信息
         println!("Output device config:");
         println!("  Sample rate: {}", output_config.sample_rate.0);
         println!("  Channels: {}", output_config.channels);
         println!("  Sample format: {:?}", output_sample_format);
 
-        // 创建输出WAV文件写入器
         let output_spec = WavSpec {
             channels: input_config.channels,
             sample_rate: output_config.sample_rate.0 / 3,
@@ -213,13 +196,9 @@ async fn audio_process(
             WavWriter::create(output_filepath, output_spec).expect("Failed to create output WAV file"),
         ));
 
-        // 克隆add_values以便在闭包中使用
         let add_values_clone = add_values.clone();
-
-        // 克隆writer以便在闭包中使用
         let mut output_writer_clone = Arc::clone(&output_writer);
 
-        // 创建输入流
         let input_stream = match input_sample_format {
             SampleFormat::F32 => input_device.build_input_stream(
                 &input_config,
@@ -289,7 +268,6 @@ async fn audio_process(
         }
         .unwrap();
 
-        // 创建输出流
         let output_stream = match output_sample_format {
             SampleFormat::F32 => output_device.build_output_stream(
                 &output_config,
@@ -357,7 +335,6 @@ fn input_callback<T>(
 ) where
     T: Sample + ToSample<f32>,
 {
-    // 先上互斥锁，防止数据竞争
     let mut buffer = buffer.lock().unwrap();
     let mut add_index = add_index.lock().unwrap();
     let mut add_index_channel = 0;
@@ -366,15 +343,12 @@ fn input_callback<T>(
     let mut data_new: Vec<f32> = Vec::new();
     let mut save_index: i8 = 0;
 
-    // 对获取到的每一位音频数据进行逐位处理
     for &sample in data.iter() {
         save_index += 1;
         let normalized_sample = sample.to_sample::<f32>();
 
-        // 使用扰动衰减系数生成处理后的音频
         let modified_sample = normalized_sample + (add_values[*add_index] * DISTURBANCE_ALPHA);
 
-        // 保存原始音频数据和处理过后的音频数据
         data_ori.push(normalized_sample);
         data_new.push(modified_sample);
         buffer.push(modified_sample);
@@ -386,7 +360,6 @@ fn input_callback<T>(
         }
 
         if save_index == 3 {
-            // 将原始样本转换为16位整数并写入原始WAV文件
             let sample_i16 = (normalized_sample * std::i16::MAX as f32)
                 .clamp(std::i16::MIN as f32, std::i16::MAX as f32)
                 as i16;
@@ -396,7 +369,6 @@ fn input_callback<T>(
                 .write_sample(sample_i16)
                 .expect("Failed to write sample");
 
-            // 将处理后的样本写入输出WAV文件
             let new_sample_i16 = (modified_sample * std::i16::MAX as f32)
                 .clamp(std::i16::MIN as f32, std::i16::MAX as f32)
                 as i16;
@@ -428,21 +400,16 @@ fn output_callback<T>(
     T: Sample + FromSample<f32>,
 {
     let mut buffer_lock = buffer.lock().unwrap();
-    // 获取当前是否应该播放声音的状态
     let should_play_actually = SHOULD_PLAY_AUDIO_OUTPUT.load(Ordering::SeqCst);
 
-    // 确保音频只输出到虚拟声卡，避免噪音
     for sample_device_output in data.iter_mut() {
         if should_play_actually {
-            // 只有在明确需要播放时才输出音频
             if let Some(processed_sample_f32) = buffer_lock.pop() {
                 *sample_device_output = T::from_sample(processed_sample_f32);
             } else {
-                // 如果缓冲区为空，输出静音
                 *sample_device_output = Sample::EQUILIBRIUM;
             }
         } else {
-            // 不需要播放时，强制输出静音
             *sample_device_output = Sample::EQUILIBRIUM;
         }
     }
@@ -460,10 +427,6 @@ fn start_audio_playback() -> Result<(), String> {
 
 #[tauri::command]
 fn pause_audio_playback() -> Result<(), String> {
-    if !HAS_RUN_AUDIO.load(Ordering::SeqCst) {
-        // 即使音频处理未运行，设置此标志也无害，但通常在运行时控制
-        // return Err("Audio processing is not running.".to_string());
-    }
     println!("Command: pause_audio_playback received. Disabling audio output to virtual audio device (muting).");
     SHOULD_PLAY_AUDIO_OUTPUT.store(false, Ordering::SeqCst);
     Ok(())
@@ -509,7 +472,6 @@ async fn delete_audio_file(
     user_id: String,
     filename: String,
 ) -> Result<bool, String> {
-    // 删除数据库记录
     let deleted = state
         .db
         .lock()
@@ -518,19 +480,15 @@ async fn delete_audio_file(
         .map_err(|e| e.to_string())?;
 
     if deleted {
-        // 删除实际的音频文件
         let base_dirs = BaseDirs::new().unwrap();
         let path = base_dirs.data_dir().to_str().unwrap();
 
-        // 删除原始音频文件
         let ori_path = format!("{}/top.echoshield/waves/{}_ori.wav", path, filename);
         let _ = std::fs::remove_file(ori_path);
 
-        // 删除处理后的音频文件
         let new_path = format!("{}/top.echoshield/waves/{}_new.wav", path, filename);
         let _ = std::fs::remove_file(new_path);
 
-        // 删除相关的文本文件
         let ori_text_path = format!("{}/top.echoshield/waves/{}_ori.txt", path, filename);
         let _ = std::fs::remove_file(ori_text_path);
         let new_text_path = format!("{}/top.echoshield/waves/{}_new.txt", path, filename);
@@ -547,7 +505,6 @@ async fn rename_audio_file(
     old_filename: String,
     new_filename: String,
 ) -> Result<bool, String> {
-    // 检查文件是否存在且属于该用户
     let renamed = state
         .db
         .lock()
@@ -556,21 +513,17 @@ async fn rename_audio_file(
         .map_err(|e| e.to_string())?;
 
     if renamed {
-        // 重命名实际的音频文件
         let base_dirs = BaseDirs::new().unwrap();
         let path = base_dirs.data_dir().to_str().unwrap();
 
-        // 重命名原始音频文件
         let old_ori_path = format!("{}/top.echoshield/waves/{}_ori.wav", path, old_filename);
         let new_ori_path = format!("{}/top.echoshield/waves/{}_ori.wav", path, new_filename);
         let _ = std::fs::rename(old_ori_path, new_ori_path);
 
-        // 重命名处理后的音频文件
         let old_new_path = format!("{}/top.echoshield/waves/{}_new.wav", path, old_filename);
         let new_new_path = format!("{}/top.echoshield/waves/{}_new.wav", path, new_filename);
         let _ = std::fs::rename(old_new_path, new_new_path);
 
-        // 重命名相关的文本文件
         let old_ori_text_path = format!("{}/top.echoshield/waves/{}_ori.txt", path, old_filename);
         let new_ori_text_path = format!("{}/top.echoshield/waves/{}_ori.txt", path, new_filename);
         let _ = std::fs::rename(old_ori_text_path, new_ori_text_path);
@@ -588,7 +541,7 @@ async fn delete_file(filepath: String) -> Result<(), String> {
     let base_dirs = BaseDirs::new().unwrap();
     let path = base_dirs.data_dir().to_str().unwrap();
     let full_path = format!("{}/top.echoshield/{}", path, filepath);
-    
+
     std::fs::remove_file(&full_path).map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -604,9 +557,9 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            register, 
-            login, 
-            audio_process, 
+            register,
+            login,
+            audio_process,
             audio_stop,
             start_audio_playback,
             pause_audio_playback,
@@ -619,4 +572,3 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
