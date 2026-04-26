@@ -22,6 +22,9 @@ ar/
 # Claude Code config
 .claude/
 
+# Vscode config
+.vscode/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
