@@ -1,0 +1,30 @@
+{
+  "name": "echoshield",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.2",
+    "echoshield": "file:",
+    "axios": "^1.7.7",
+    "crypto-js": "^4.2.0",
+    "js-cookie": "^3.0.5",
+    "pinia": "^2.2.2",
+    "vue": "^3.3.4",
+    "vue-i18n": "^11.0.1",
+    "vue-router": "4",
+    "wavesurfer.js": "^7.8.8"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.8",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "sharp": "^0.34.2",
+    "vite": "^4.4.4"
+  }
+}

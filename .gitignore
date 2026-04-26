@@ -1,0 +1,37 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment files (contain sensitive API keys)
+.env
+.env.*
+!.env.example
+
+# Generated directories
+uap/
+ar/
+
+# Claude Code config
+.claude/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.sw?
+
+# Tauri build output
+src-tauri/target/
+
+# User config (may contain sensitive API keys)
+config.json

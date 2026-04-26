@@ -1,0 +1,96 @@
+{
+  "home": {
+    "btnStart": "启动 EchoShield",
+    "btnList": "查看历史通信记录",
+    "btnAsync": "同步对抗扰动库",
+    "btnConfig": "配置接口"
+  },
+  "config": {
+    "title": "配置接口",
+    "enableASR": "启动 ASR 识别",
+    "appid": "APPID:",
+    "apiSecret": "API Secret:",
+    "apiKey": "API Key:",
+    "saveConfig": "保存配置"
+  },
+  "title": "历史通讯列表",
+  "list": {
+    "waveTitleOri": "原始音频波形与转录文本",
+    "waveTitleNew": "防护后音频波形与识别结果",
+    "deleteConfirm": "确认删除",
+    "deleteMessage": "确定要删除这条音频记录吗？",
+    "delete": "删除",
+    "cancel": "取消",
+    "rename": "重命名",
+    "renameConfirm": "重命名文件",
+    "renameMessage": "请输入新的文件名：",
+    "save": "保存"
+  },
+  "return": "返回",
+  "language": {
+    "zh_en": "中英文",
+    "small_lang": "小语种",
+    "ar_sa": "阿拉伯语",
+    "es_es": "西班牙语",
+    "fr_fr": "法语",
+    "ja_jp": "日语",
+    "de_DE": "德语"
+  },
+  "async": {
+    "uploadMessage": "上传对抗扰动文件",
+    "uploadSuccess": "上传成功",
+    "uploadError": "上传失败，请重试",
+    "dropzone": "拖拽文件到此处或点击上传",
+    "dropzoneAlready": "已上传文件:",
+    "displaySync": "同步对抗扰动库中",
+    "displaySyncSuccess": "同步成功",
+    "displaySyncFail": "无法获取对抗扰动库"
+  },
+  "notfound": {
+    "notfound": "页面未找到"
+  },
+  "protect": {
+    "ori": "原始音频波形",
+    "new": "防护后音频波形",
+    "play": "播放",
+    "mute": "静音",
+    "stop": "停止"
+  },
+  "nav": {
+    "language": "语言",
+    "logout": "退出登录"
+  },
+  "welcome": {
+    "greeting": "欢迎回来，{username}",
+    "continue": "继续使用"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "username": "用户名",
+      "password": "密码",
+      "usernamePlaceholder": "请输入用户名",
+      "passwordPlaceholder": "请输入密码",
+      "signIn": "登录",
+      "signingIn": "登录中...",
+      "noAccount": "还没有账号？",
+      "signUp": "注册",
+      "loginFailed": "用户名或密码错误"
+    },
+    "register": {
+      "title": "注册",
+      "username": "用户名",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "usernamePlaceholder": "请选择用户名",
+      "passwordPlaceholder": "请设置密码",
+      "confirmPasswordPlaceholder": "请确认密码",
+      "createAccount": "注册",
+      "creatingAccount": "注册中...",
+      "hasAccount": "已有账号？",
+      "signIn": "登录",
+      "passwordsNotMatch": "两次输入的密码不一致",
+      "registrationFailed": "用户已存在"
+    }
+  }
+}
