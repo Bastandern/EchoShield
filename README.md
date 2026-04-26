@@ -100,7 +100,7 @@ Modern devices and applications continuously listen for voice commands, raising 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      EchoShield App                          │
+│                      EchoShield App                         │
 ├─────────────────────────────────────────────────────────────┤
 │  Frontend (Vue.js)                                          │
 │  ├── HomeView      - Main dashboard                         │
@@ -165,8 +165,3 @@ This project is licensed under the MIT License.
 
 - Email: 624772990@qq.com
 - GitHub Issues: [Open an issue](https://github.com/Bastandern/EchoShield/issues)
-
-## ✨ Acknowledgments
-
-- Perturbation library sourced from [Bastandern/ar](https://github.com/Bastandern/ar)
-- Thanks to the open-source community for making this project possible
