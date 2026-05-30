@@ -159,7 +159,7 @@
 
 ## 📄 开源协议
 
-本项目基于 MIT 协议开源。
+本项目基于 GNU General Public License v3.0 协议开源。
 
 ## 📫 联系方式
 
